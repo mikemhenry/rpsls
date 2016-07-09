@@ -1,8 +1,9 @@
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-void getThrowCode(char throw [3]) {
+int getThrowCode(char throw [3]) {
 
   int i_throw = (int)throw [0];
   i_throw += (int)throw [1];
@@ -23,37 +24,66 @@ void getThrowCode(char throw [3]) {
   case 227:
     i_throw = 4;
     break;
+  default:
+    i_throw = -1;
   }
 
-  printf("ASCII code throw %d\n", i_throw);
+  return i_throw;
 }
 
-void getThrow(char throw[3]) {
-  if (fgets(throw, 3, stdin) == NULL) {
-    printf("Couldn't read your input");
+int getThrow(char throw [3]) {
+  bool badInput = 1;
+  int throwcode;
+  while (badInput == 1) {
+    if (fgets(throw, 3, stdin) == NULL) {
+      printf("Couldn't read your input, try again\n");
+    }
+    throwcode = getThrowCode(throw);
+    if (throwcode == -1) {
+      printf("That was not a valid choice, try again\n");
+    } else {
+      badInput = 0;
+    }
   }
-  //throw[strcspn(throw, "\n")] = 0;
+
+  printf("You threw %s\n", throw);
+  printf("Which is choice %d\n", throwcode);
+  return throwcode;
 }
 
+int getWinner(int throw1, int throw2) {
+  // 0 = lost
+  // -1 = tie
+  // 1 = win
+
+  if ((((throw1 + 2) % 5) == throw2) | (((throw1 + 4) % 5) == throw2)) {
+    return 0;
+  } else if (throw1 == throw2) {
+    return -1;
+  } else {
+    return 1;
+  }
+}
 int main() {
   char p1throw[3];
-  char p2throw[] = "2";
+  char p2throw[3];
+  int throwcode1;
+  int throwcode2;
+  int status;
 
   printf("What would you like to throw? \n");
 
   printf("Rock (ro)\nPaper (pa)\nScissors (sc)\nLizard (li)\nSpock(sp)\n");
-  getThrow(p1throw);
 
-  printf("You threw %s \n", p1throw);
-
-  printf("The computer thew %s \n", p2throw);
-
-  if (strcmp(p1throw, "r") == 0) {
-    printf("good job\n");
+  throwcode1 = getThrow(p1throw);
+  throwcode2 = getThrow(p2throw);
+  status = getWinner(throwcode1, throwcode2);
+  if (status == 0) {
+    printf("You lost :(\n");
+  } else if (status == 1) {
+    printf("You won :)\n");
   } else {
-    printf("you lost\n");
+    printf("Tie game =/\n");
   }
-  getThrowCode(p1throw);
-
-  return EXIT_SUCCESS;
+    return EXIT_SUCCESS;
 }
